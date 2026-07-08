@@ -23,8 +23,8 @@ OUTPUT_PATH = os.environ.get("OUTPUT_PATH", "/output/results.json")
 # Config — cheaper / more expensive Fireworks models (ordered for escalation)
 # ---------------------------------------------------------------------------
 COST_ORDER = [
-    "accounts/fireworks/models/minimax-m3",
-    "accounts/fireworks/models/gemma-4-31b-it-nvfp4",
+ "accounts/fireworks/models/minimax-m3",
+  "accounts/fireworks/models/gemma-4-31b-it-nvfp4",
     "accounts/fireworks/models/gemma-4-31b-it",
     "accounts/fireworks/models/gemma-4-26b-a4b-it",
     "accounts/fireworks/models/kimi-k2p7-code",
@@ -49,20 +49,35 @@ def _get_llm(env: dict):
         print("[local] llama-cpp-python not installed", file=sys.stderr)
         return None
     model_path = env.get("LOCAL_MODEL_PATH", "/app/models/qwen2.5-0.5b-instruct-q4_k_m.gguf")
-    if not os.path.exists(model_path):
-        print(f"[local] model not found at {model_path}", file=sys.stderr)
-        return None
+    if os.path.exists(model_path) and os.path.getsize(model_path) > 1_000_000:
+        try:
+            _LLM = Llama(
+                model_path=model_path,
+                n_ctx=int(env.get("LOCAL_MODEL_N_CTX", "2048")),
+                n_threads=int(env.get("LOCAL_MODEL_N_THREADS", "4")),
+                verbose=False,
+            )
+            print(f"[local] loaded {model_path}", file=sys.stderr)
+            return _LLM
+        except Exception as exc:
+            print(f"[local] load error: {exc}", file=sys.stderr)
+    repo_id = env.get("LOCAL_MODEL_REPO", "Qwen/Qwen2.5-0.5B-Instruct-GGUF")
+    filename = env.get("LOCAL_MODEL_FILE", "qwen2_5-0.5b-instruct-q4_k_m.gguf")
+    hf_token = os.environ.get("HF_TOKEN") or env.get("HF_TOKEN", "")
     try:
-        _LLM = Llama(
-            model_path=model_path,
+        print(f"[local] downloading {repo_id}:{filename} ...", file=sys.stderr)
+        _LLM = Llama.from_pretrained(
+            repo_id=repo_id,
+            filename=filename,
             n_ctx=int(env.get("LOCAL_MODEL_N_CTX", "2048")),
             n_threads=int(env.get("LOCAL_MODEL_N_THREADS", "4")),
             verbose=False,
+            hf_api_token=hf_token or None,
         )
-        print(f"[local] loaded {model_path}", file=sys.stderr)
+        print("[local] model ready", file=sys.stderr)
         return _LLM
     except Exception as exc:
-        print(f"[local] load error: {exc}", file=sys.stderr)
+        print(f"[local] download error: {exc}", file=sys.stderr)
         return None
 
 
@@ -173,7 +188,7 @@ def build_prompt(category: str, user_prompt: str) -> str:
             "Summarise in exactly one sentence. No preamble.\n\nText: {prompt}"
         ),
         "ner": (
-            "Extract named entities as JSON: {\"person\":[],\"org\":[],\"location\":[],\"date\":[]}. "
+            "Extract named entities as JSON: {{'person':[],'org':[],'location':[],'date':[]}}. "
             "No markdown.\n\nText: {prompt}"
         ),
         "math": (
@@ -270,7 +285,8 @@ def process_task(task: dict, env: dict) -> tuple[str, int, str]:
 
     if source == "fireworks":
         if env.get("api_key"):
-            return call_fireworks(model, styled, env, max_tokens=max_tokens)
+            answer, tokens = call_fireworks(model, styled, env, max_tokens=max_tokens)
+            return answer, tokens, source
         print(f"[{task.get('task_id','')}] no API key, mock fallback", file=sys.stderr)
         return call_mock(model, styled, env), 0, "mock"
 
