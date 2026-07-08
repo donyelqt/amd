@@ -291,18 +291,23 @@ def process_task(task: dict, env: dict) -> tuple[str, int, str]:
     if source == "local":
         answer, tokens = call_local(model, styled, env, max_tokens=max_tokens)
         if not answer and env.get("api_key") and env.get("allowed"):
-            fireworks_model, _ = pick_model(category, env)
+            fw_env = {**env, "local_endpoint": "", "local_model_name": ""}
+            fireworks_model, _ = pick_model(category, fw_env)
             if fireworks_model:
                 print(f"[{task.get('task_id','')}] local miss → escalating to {fireworks_model}", file=sys.stderr)
                 answer, tokens = call_fireworks(fireworks_model, styled, env, max_tokens=max_tokens)
+        if not answer:
+            print(f"[{task.get('task_id','')}] empty answer (no fallback available)", file=sys.stderr)
         return answer, tokens, source
 
     if source == "fireworks":
         if env.get("api_key"):
             answer, tokens = call_fireworks(model, styled, env, max_tokens=max_tokens)
             return answer, tokens, source
+        print(f"[{task.get('task_id','')}] no FIREWORKS_API_KEY set, falling back to mock", file=sys.stderr)
         return call_mock(model, styled, env, max_tokens=max_tokens), 0, "mock"
 
+    print(f"[{task.get('task_id','')}] no model configured, returning empty", file=sys.stderr)
     return "", 0, "none"
 
 
@@ -333,17 +338,17 @@ def main() -> int:
         except Exception:
             traceback.print_exc(file=sys.stderr)
             answer, tokens, src = "", 0, "error"
-        total_tokens += tokens
-    results.append({"task_id": task_id, "answer": answer})
+            total_tokens += tokens
+        results.append({"task_id": task_id, "answer": answer})
 
-    debug.append(
-        {
-            "task_id": task_id,
-            "category": classify_category(task.get("prompt", "")),
-            "source": src,
-            "tokens": tokens,
-        }
-    )
+        debug.append(
+            {
+                "task_id": task_id,
+                "category": classify_category(task.get("prompt", "")),
+                "source": src,
+                "tokens": tokens,
+            }
+        )
         print(f"[{task_id}] done ({src}) tokens={tokens}", file=sys.stderr)
 
     print(f"Total Fireworks tokens: {total_tokens}", file=sys.stderr)
