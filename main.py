@@ -114,6 +114,8 @@ def load_env() -> dict:
         "base_url": base_url,
         "allowed": allowed,
         "cost_sorted": cost_sorted,
+        "local_model_endpoint": os.environ.get("LOCAL_MODEL_ENDPOINT", ""),
+        "local_model_name": os.environ.get("LOCAL_MODEL_NAME", "qwen2.5:0.5b"),
         "local_model_path": os.environ.get("LOCAL_MODEL_PATH", "/app/models/qwen2.5-0.5b-instruct-q4_k_m.gguf"),
         "local_model_n_ctx": os.environ.get("LOCAL_MODEL_N_CTX", "2048"),
         "local_model_n_threads": os.environ.get("LOCAL_MODEL_N_THREADS", "4"),
@@ -148,6 +150,8 @@ def classify_category(prompt: str) -> str:
 
 def pick_model(category: str, env: dict) -> tuple[str, str]:
     if category in LOCAL_SAFE:
+        if env.get("local_model_endpoint"):
+            return env["local_model_name"], "local"
         llm = _get_llm(env)
         if llm is not None:
             return "local", "local"
@@ -242,6 +246,30 @@ def call_fireworks(model: str, prompt: str, env: dict, max_tokens: int = 512) ->
 # ---------------------------------------------------------------------------
 
 def call_local(model: str, prompt: str, env: dict, max_tokens: int = 512) -> tuple[str, int]:
+    endpoint = env.get("local_model_endpoint", "")
+    name = env.get("local_model_name", "")
+    if endpoint:
+        try:
+            import urllib.request
+            import json as _json
+            url = f"{endpoint.rstrip('/')}/chat/completions"
+            body = _json.dumps({
+                "model": name,
+                "messages": [
+                    {"role": "system", "content": "You are a precise assistant. Answer exactly as instructed."},
+                    {"role": "user", "content": prompt},
+                ],
+                "max_tokens": max_tokens,
+                "temperature": 0.0,
+            }).encode()
+            req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"}, method="POST")
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = _json.loads(resp.read())
+                text = (data.get("choices", [{}])[0].get("message", {}).get("content", "") or "").strip()
+                return text, 0
+        except Exception as exc:
+            print(f"[local] ollama {name} error: {exc}", file=sys.stderr)
+            return "", 0
     messages = [
         {"role": "system", "content": "You are a precise assistant. Answer exactly as instructed."},
         {"role": "user", "content": prompt},
