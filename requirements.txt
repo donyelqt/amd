@@ -1,3 +1,4 @@
 llama-cpp-python>=0.2.0
 python-dotenv
 huggingface_hub
+openai>=1.0.0
