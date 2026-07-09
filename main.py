@@ -169,14 +169,14 @@ def _model_preference(category: str) -> list[str]:
     table = {
         "codegen": ["accounts/fireworks/models/kimi-k2p7-code"],
         "debugging": ["accounts/fireworks/models/kimi-k2p7-code"],
-        "math": ["accounts/fireworks/models/minimax-m3", "accounts/fireworks/models/gemma-4-31b-it-nvfp4"],
-        "logic": ["accounts/fireworks/models/gemma-4-31b-it", "accounts/fireworks/models/minimax-m3"],
-        "ner": ["accounts/fireworks/models/gemma-4-31b-it-nvfp4", "accounts/fireworks/models/minimax-m3"],
-        "factual": ["accounts/fireworks/models/gemma-4-26b-a4b-it", "accounts/fireworks/models/minimax-m3"],
-        "summarisation": ["accounts/fireworks/models/gemma-4-26b-a4b-it", "accounts/fireworks/models/minimax-m3"],
-        "sentiment": ["accounts/fireworks/models/gemma-4-26b-a4b-it", "accounts/fireworks/models/minimax-m3"],
+        "math": ["accounts/fireworks/models/minimax-m3"],
+        "logic": ["accounts/fireworks/models/minimax-m3"],
+        "ner": ["accounts/fireworks/models/minimax-m3"],
+        "factual": ["accounts/fireworks/models/minimax-m3"],
+        "summarisation": ["accounts/fireworks/models/minimax-m3"],
+        "sentiment": ["accounts/fireworks/models/minimax-m3"],
     }
-    return table.get(category, ["accounts/fireworks/models/gemma-4-26b-a4b-it", "accounts/fireworks/models/minimax-m3"])
+    return table.get(category, ["accounts/fireworks/models/minimax-m3"])
 
 # ---------------------------------------------------------------------------
 # Per-category prompts — minimise output tokens
