@@ -1,0 +1,10 @@
+[
+  { "task_id": "t1", "prompt": "Summarise the following text in one sentence: The quick brown fox jumps over the lazy dog while the dog sleeps peacefully." },
+  { "task_id": "t2", "prompt": "What is 15% of 240?" },
+  { "task_id": "t3", "prompt": "Classify the sentiment of this review as positive, negative, or neutral: 'This product exceeded all my expectations!'" },
+  { "task_id": "t4", "prompt": "Extract named entities (person, org, location, date) from: 'Tim Cook announced at Apple Park in Cupertino on June 9 2024 that...'" },
+  { "task_id": "t5", "prompt": "Find the bug in this code and provide the corrected implementation: def add(a, b): return a - b" },
+  { "task_id": "t6", "prompt": "Three friends A, B, C. A is taller than B. C is shorter than B. Who is tallest?" },
+  { "task_id": "t7", "prompt": "Write a Python function that returns the factorial of a non-negative integer n." },
+  { "task_id": "t8", "prompt": "Explain what a closure is in JavaScript." }
+]
