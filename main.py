@@ -19,6 +19,32 @@ load_dotenv()
 INPUT_PATH = os.environ.get("INPUT_PATH", "/input/tasks.json")
 OUTPUT_PATH = os.environ.get("OUTPUT_PATH", "/output/results.json")
 
+
+def _resolve_path(fallbacks: list[str | None]) -> str:
+    for raw in fallbacks:
+        if not raw:
+            continue
+        path = str(raw)
+        if os.path.exists(path):
+            return path
+    return str(fallbacks[0] or "/input/tasks.json")
+
+
+INPUT_PATH = _resolve_path([
+    os.environ.get("INPUT_PATH"),
+    "/input/tasks.json",
+    os.path.join(os.path.dirname(__file__), "input", "tasks.json"),
+    os.path.join(os.path.dirname(__file__), "sample_tasks.json"),
+    "sample_tasks.json",
+])
+
+OUTPUT_PATH = _resolve_path([
+    os.environ.get("OUTPUT_PATH"),
+    "/output/results.json",
+    os.path.join(os.path.dirname(__file__), "output", "results.json"),
+    "output/results.json",
+])
+
 # ---------------------------------------------------------------------------
 # Config — cheaper / more expensive Fireworks models (ordered for escalation)
 # ---------------------------------------------------------------------------
@@ -356,12 +382,6 @@ def main() -> int:
     results = []
     debug = []
     total_tokens = 0
-
-    try:
-        if any(classify_category(t.get("prompt", "")) in LOCAL_SAFE for t in tasks):
-            _get_llm(env)
-    except Exception:
-        pass
 
     for i, task in enumerate(tasks):
         task_id = task.get("task_id") or f"t{i}"
