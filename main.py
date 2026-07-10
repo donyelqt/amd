@@ -93,7 +93,7 @@ def _local_chat(env: dict, messages: list, max_tokens: int = 512) -> tuple[str, 
             stop=["\n\n", "User:", "Human:"],
         )
         text = (resp.get("choices", [{}])[0].get("message", {}).get("content", "") or "").strip()
-        tokens = resp.get("usage", {}).get("total_tokens", 0)
+        tokens = 0  # local tokens count as zero per hackathon rules
         return text, tokens
     except Exception as exc:
         print(f"[local] inference error: {exc}", file=sys.stderr)
@@ -314,6 +314,12 @@ def process_task(task: dict, env: dict) -> tuple[str, int, str]:
     if source == "fireworks":
         if env.get("api_key"):
             answer, tokens = call_fireworks(model, styled, env, max_tokens=max_tokens)
+            if not answer:
+                llm = _get_llm(env)
+                if llm is not None:
+                    print(f"[{task.get('task_id','')}] fireworks miss → local", file=sys.stderr)
+                    answer, _ = call_local("local", styled, env, max_tokens=max_tokens)
+                    tokens = 0
             return answer, tokens, source
         print(f"[{task.get('task_id','')}] no API key, mock fallback", file=sys.stderr)
         return call_mock(model, styled, env), 0, "mock"
@@ -351,8 +357,11 @@ def main() -> int:
     debug = []
     total_tokens = 0
 
-    if any(classify_category(t.get("prompt", "")) in LOCAL_SAFE for t in tasks):
-        _get_llm(env)
+    try:
+        if any(classify_category(t.get("prompt", "")) in LOCAL_SAFE for t in tasks):
+            _get_llm(env)
+    except Exception:
+        pass
 
     for i, task in enumerate(tasks):
         task_id = task.get("task_id") or f"t{i}"
