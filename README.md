@@ -59,37 +59,40 @@ cp .env.example .env
 INPUT_PATH=sample_tasks.json OUTPUT_PATH=output/results.json python main.py
 ```
 
-## How to build the Docker image
-
-> **Image size budget: 10 GB compressed.** Keep it lean.
+## How to build and push the Docker image
 
 ```bash
-docker build -t track1-agent .
+# Build for linux/amd64 (required by judging VM)
+docker buildx build --platform linux/amd64 --tag donyelqt/track1-agent:latest --push .
+
+# Tag for GHCR
+docker tag donyelqt/track1-agent:latest ghcr.io/donyelqt/amd/track1-agent:latest
+
+# Push to GHCR (make sure package is public at github.com/users/donyelqt/packages)
+docker push ghcr.io/donyelqt/amd/track1-agent:latest
 ```
 
-Mock-mode test (no GPU, no key):
+## How to run for evaluation
 
-```bash
+```powershell
+# Windows PowerShell
 docker run --rm `
-  -v "${PWD}/sample_tasks.json:/input/tasks.json:ro" `
-  -v "${PWD}/output:/output" `
-  track1-agent
+  
 ```
-
-Real-fireworks test (requires `pip install openai` on your host for the test run):
 
 ```bash
-docker run --rm `
-  -e FIREWORKS_API_KEY=$FIREWORKS_API_KEY `
-  -e FIREWORKS_BASE_URL=$FIREWORKS_BASE_URL `
-  -e ALLOWED_MODELS=$ALLOWED_MODELS `
-  -v "${PWD}/sample_tasks.json:/input/tasks.json:ro" `
-  -v "${PWD}/output:/output" `
-  track1-agent
+# Linux / macOS
+docker run --rm \
+  -v "${PWD}/input:/input:ro" \
+  -v "${PWD}/output:/output" \
+  -e FIREWORKS_API_KEY="your-key" \
+  -e FIREWORKS_BASE_URL="https://api.fireworks.ai/inference/v1" \
+  -e ALLOWED_MODELS="accounts/fireworks/models/minimax-m3" \
+  donyelqt/track1-agent:latest
 ```
 
-> The harness **always** injects `FIREWORKS_API_KEY` at eval time.
-> Your container must read it from the environment; never bake it into the image.
+> The harness **always** injects `FIREWORKS_API_KEY`, `FIREWORKS_BASE_URL`, and `ALLOWED_MODELS` at eval time.
+> Your container reads them from the environment; never bake them into the image.
 
 ## What gets scored
 
@@ -125,8 +128,8 @@ docker run --rm `
 
 ## TODO before submit
 
-- [ ] Test with real Fireworks key + `ALLOWED_MODELS` — measure `usage.total_tokens`
-- [ ] Test local model on your RTX 3050 (4 GB VRAM) — likely `gemma:2b` or `gemma:3b` 4-bit
-- [ ] Tune per-category prompts to shave output tokens
-- [ ] Validate accuracy gate on held-out samples per category
-- [ ] Push image to GHCR / Docker Hub, submit on lablab.ai
+- [x] Test with real Fireworks key + `ALLOWED_MODELS` — measure `usage.total_tokens`
+- [x] Test local model inference (Qwen2.5-0.5B GGUF inside container)
+- [x] Tune per-category prompts to shave output tokens
+- [x] Validate accuracy gate on held-out samples per category
+- [x] Push image to GHCR, submit on lablab.ai
