@@ -326,7 +326,11 @@ def process_task(task: dict, env: dict) -> tuple[str, int, str]:
 # ---------------------------------------------------------------------------
 
 def main() -> int:
-    env = load_env()
+    try:
+        env = load_env()
+    except Exception as exc:
+        print(f"ERROR: env load failed: {exc}", file=sys.stderr)
+        return 2
 
     if env.get("api_key") and not env.get("allowed"):
         print("ERROR: FIREWORKS_API_KEY set but ALLOWED_MODELS empty", file=sys.stderr)
@@ -336,14 +340,17 @@ def main() -> int:
         print(f"ERROR: input not found at {INPUT_PATH}", file=sys.stderr)
         return 1
 
-    with open(INPUT_PATH, "r", encoding="utf-8") as f:
-        tasks = json.load(f)
+    try:
+        with open(INPUT_PATH, "r", encoding="utf-8") as f:
+            tasks = json.load(f)
+    except Exception as exc:
+        print(f"ERROR: failed to read input: {exc}", file=sys.stderr)
+        return 1
 
     results = []
     debug = []
     total_tokens = 0
 
-    # Warm up local model once before loop (so it's ready when first task hits)
     if any(classify_category(t.get("prompt", "")) in LOCAL_SAFE for t in tasks):
         _get_llm(env)
 
@@ -366,15 +373,19 @@ def main() -> int:
 
     print(f"Total Fireworks tokens: {total_tokens}", file=sys.stderr)
 
-    out_dir = os.path.dirname(OUTPUT_PATH)
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
-    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
+    try:
+        out_dir = os.path.dirname(OUTPUT_PATH)
+        if out_dir:
+            os.makedirs(out_dir, exist_ok=True)
+        with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+            json.dump(results, f, ensure_ascii=False, indent=2)
 
-    debug_path = os.path.join(out_dir or ".", "debug.json")
-    with open(debug_path, "w", encoding="utf-8") as f:
-        json.dump({"tasks": debug, "total_tokens": total_tokens}, f, ensure_ascii=False, indent=2)
+        debug_path = os.path.join(out_dir or ".", "debug.json")
+        with open(debug_path, "w", encoding="utf-8") as f:
+            json.dump({"tasks": debug, "total_tokens": total_tokens}, f, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        print(f"ERROR: failed to write output: {exc}", file=sys.stderr)
+        return 1
 
     return 0
 
