@@ -16,6 +16,7 @@ hf_hub_download(repo_id='Qwen/Qwen2.5-0.5B-Instruct-GGUF', filename='qwen2.5-0.5
 "
 
 COPY main.py /app/main.py
+COPY input /app/input
 RUN mkdir -p /input /output
 
 CMD ["python", "/app/main.py"]
