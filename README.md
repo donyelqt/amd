@@ -77,7 +77,12 @@ docker push ghcr.io/donyelqt/amd/track1-agent:latest
 ```powershell
 # Windows PowerShell
 docker run --rm `
-  
+  -v "${PWD}\input:/input:ro" `
+  -v "${PWD}\output:/output" `
+  -e FIREWORKS_API_KEY="your-key" `
+  -e FIREWORKS_BASE_URL="https://api.fireworks.ai/inference/v1" `
+  -e ALLOWED_MODELS="accounts/fireworks/models/minimax-m3" `
+  donyelqt/track1-agent:latest
 ```
 
 ```bash
@@ -93,6 +98,9 @@ docker run --rm \
 
 > The harness **always** injects `FIREWORKS_API_KEY`, `FIREWORKS_BASE_URL`, and `ALLOWED_MODELS` at eval time.
 > Your container reads them from the environment; never bake them into the image.
+
+> **Note**: `/input/tasks.json` and `/output/` are mounted by the evaluation system. Do not bundle them in the image.
+> If running locally without volume mounts, place `tasks.json` in `./input/` or use `sample_tasks.json`.
 
 ## What gets scored
 
