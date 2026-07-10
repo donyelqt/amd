@@ -14,7 +14,7 @@ import sys
 import traceback
 from dotenv import load_dotenv
 
-load_dotenv(override=True)
+load_dotenv()
 
 INPUT_PATH = os.environ.get("INPUT_PATH", "/input/tasks.json")
 OUTPUT_PATH = os.environ.get("OUTPUT_PATH", "/output/results.json")

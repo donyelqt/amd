@@ -1,4 +1,10 @@
 .env
-output/
-__pycache__/
-.git/
+.env.*
+.git
+.gitignore
+README.md
+*.md
+__pycache__
+*.pyc
+.venv
+venv
