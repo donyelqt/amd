@@ -2,7 +2,7 @@
 ## AMD Developer Hackathon: ACT II
 
 <p align="center"><img src="docs/hackathon-wrap.png" width="420" alt="AMD Developer Hackathon: ACT II — wrap graphic: 20,727 participants · 4,894 teams · 1,152 AI applications · $21,000 prize pool"></p>
-> Event scale (final): 20,727 participants → 4,894 teams → 1,152 AI applications → 63 qualified T1 → **#20**. Most never cleared the accuracy gate or judging quota.
+<p align="center"><em>Event scale (final): 20,727 participants → 4,894 teams → 1,152 AI applications → 63 qualified T1 → <strong>#20</strong>.<br>Most never cleared the accuracy gate or judging quota.</em></p>
 
 Local-first, Fireworks fallback. Safe categories run on a local model inside the
 container for **0 tokens**. Hard categories escalate to the cheapest adequate
