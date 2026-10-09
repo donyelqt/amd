@@ -1,6 +1,8 @@
 # Hybrid Token-Efficient Routing Agent — Track 1
 ## AMD Developer Hackathon: ACT II
 
+![AMD Developer Hackathon: ACT II — live event banner (20,727 participants · 4,644 teams · 168 submissions)](docs/hackathon-event.png)
+
 Local-first, Fireworks fallback. Safe categories run on a local model inside the
 container for **0 tokens**. Hard categories escalate to the cheapest adequate
 Fireworks model from `ALLOWED_MODELS`. Routing intelligence wins, not raw compute.
