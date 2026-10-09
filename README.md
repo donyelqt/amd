@@ -1,8 +1,8 @@
 # Hybrid Token-Efficient Routing Agent — Track 1
 ## AMD Developer Hackathon: ACT II
 
-![AMD Developer Hackathon: ACT II — live event banner (20,727 participants · 4,644 teams · 168 submissions)](docs/hackathon-event.png)
-> Event scale, Jul 10: 20,727 participants · 4,644 teams event-wide — most never cleared the accuracy gate or judging quota to reach the T1 leaderboard.
+![AMD Developer Hackathon: ACT II — wrap graphic: 20,727 participants · 4,894 teams · 1,152 AI applications · $21,000 prize pool](docs/hackathon-wrap.png)
+> Event scale (final): 20,727 participants → 4,894 teams → 1,152 AI applications → 63 qualified T1 → **#20**. Most never cleared the accuracy gate or judging quota.
 
 Local-first, Fireworks fallback. Safe categories run on a local model inside the
 container for **0 tokens**. Hard categories escalate to the cheapest adequate
