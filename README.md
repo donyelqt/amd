@@ -4,6 +4,12 @@
 Local-first, Fireworks fallback. Safe categories run on a local model inside the
 container for **0 tokens**. Hard categories escalate to the cheapest adequate
 Fireworks model from `ALLOWED_MODELS`. Routing intelligence wins, not raw compute.
++
+## 🏆 Leaderboard — T1 · General-Purpose AI Agent
++
+**#20 — DonieleTheLastAgent (`cracking-doniele`) · 4,045 tokens · 94.7% accuracy**
++
+![AMD Judging — Automated Scoring Leaderboard, T1 tab: DonieleTheLastAgent at rank 20 with 4,045 tokens and 94.7% accuracy](docs/leaderboard-t1.png)
 
 ## Files
 
