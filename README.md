@@ -2,6 +2,7 @@
 ## AMD Developer Hackathon: ACT II
 
 ![AMD Developer Hackathon: ACT II — live event banner (20,727 participants · 4,644 teams · 168 submissions)](docs/hackathon-event.png)
+> Event scale, Jul 10: 20,727 participants · 4,644 teams event-wide — most never cleared the accuracy gate or judging quota to reach the T1 leaderboard.
 
 Local-first, Fireworks fallback. Safe categories run on a local model inside the
 container for **0 tokens**. Hard categories escalate to the cheapest adequate
@@ -9,7 +10,7 @@ Fireworks model from `ALLOWED_MODELS`. Routing intelligence wins, not raw comput
 +
 ## 🏆 Leaderboard — T1 · General-Purpose AI Agent
 +
-**#20 — DonieleTheLastAgent (`cracking-doniele`) · 4,045 tokens · 94.7% accuracy**
+**#20 of 63 qualified T1 entries (accuracy-gated) · 4,045 tokens · 94.7% — Jul 13**
 +
 ![AMD Judging — Automated Scoring Leaderboard, T1 tab: DonieleTheLastAgent at rank 20 with 4,045 tokens and 94.7% accuracy](docs/leaderboard-t1.png)
 
